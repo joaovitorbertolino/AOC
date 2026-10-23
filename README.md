@@ -1,36 +1,82 @@
-# AOC — Desenvolvimento de jogo para NES
+# AOC — Jogo para NES em Assembly
 
-Projeto desenvolvido em Assembly para o Nintendo Entertainment System (NES), como parte da disciplina de Arquitetura e Organização de Computadores (AOC).
+Projeto desenvolvido para a disciplina de Arquitetura e Organização de Computadores (AOC). O objetivo é desenvolver um jogo para o Nintendo Entertainment System (NES) utilizando Assembly do processador 6502.
 
-O projeto utiliza o assembler ca65 e o linker ld65, com compilação automatizada por meio de um Makefile.
+## Tecnologias e ferramentas
 
-## 1. Requisitos
+- **Assembly 6502:** linguagem utilizada no desenvolvimento do jogo.
+- **cc65:** conjunto de ferramentas utilizado para montar e gerar a ROM.
+- **ca65:** assembler responsável por transformar os arquivos Assembly em arquivos objeto.
+- **ld65:** linker responsável por gerar a ROM a partir dos arquivos objeto e da configuração de memória.
+- **Mesen:** emulador utilizado para executar e testar o jogo.
+- **Make:** ferramenta utilizada para automatizar a compilação.
 
-Para compilar o projeto, é necessário ter instalado:
+## Requisitos
 
-- [Git](https://git-scm.com/)
-- [GNU Make](https://www.gnu.org/software/make/)
-- [cc65](https://cc65.github.io/), que inclui o ca65 e o ld65
-- [Mesen](https://www.mesen.ca/), para executar e testar a ROM
+Para compilar e executar o projeto, é necessário ter:
 
-O Mesen é necessário apenas para executar o jogo. A compilação é realizada pelo ca65, ld65 e Make.
+- [cc65](https://cc65.github.io/) instalado.
+- [Mesen](https://www.mesen.ca/) instalado.
+- `make` instalado.
+- Git instalado para clonar o repositório.
 
-## 2. Clonando o repositório
+Os comandos abaixo consideram um ambiente Linux. A instalação das ferramentas pode variar conforme o sistema operacional.
 
-Clone o repositório e entre no diretório do projeto:
+## Como executar
+
+### 1. Clonar o repositório
 
 ```bash
 git clone https://github.com/joaovitorbertolino/AOC.git
 cd AOC
 ```
 
-## 3. Estrutura do projeto
+### 2. Compilar o projeto
+
+Na raiz do repositório, execute:
+
+```bash
+make
+```
+
+O comando monta o código Assembly e gera a ROM do jogo.
+
+Após a compilação, o arquivo gerado estará em:
+
+```text
+build/teste.nes
+```
+
+### 3. Executar o jogo
+
+Se o Mesen estiver disponível no PATH do sistema, execute:
+
+```bash
+make run
+```
+
+Caso o comando não funcione, abra o Mesen manualmente e carregue o arquivo:
+
+```text
+build/teste.nes
+```
+
+### 4. Limpar os arquivos gerados
+
+Para remover os arquivos presentes na pasta `build/`, execute:
+
+```bash
+make clean
+```
+
+Depois, basta executar `make` novamente para recompilar o projeto.
+
+## Estrutura do projeto
 
 ```text
 AOC/
+├── assets/
 ├── build/
-│   ├── main.o
-│   └── teste.nes
 ├── cfg/
 │   └── nes.cfg
 ├── src/
@@ -39,161 +85,116 @@ AOC/
 └── README.md
 ```
 
-Os arquivos dentro de `build/` são gerados durante a compilação e podem não estar presentes antes da primeira execução do Make.
+### `assets/`
 
-### `src/`
+Pasta destinada aos recursos utilizados pelo jogo.
 
-Contém os arquivos-fonte Assembly do projeto.
+Conforme o desenvolvimento avançar, ela poderá armazenar recursos como:
 
-- `main.s`: arquivo principal, contendo o cabeçalho da ROM, a inicialização da CPU, a rotina inicial de configuração da PPU e o loop principal.
+- **Tiles:** dados gráficos utilizados para construir os elementos visuais.
+- **Mapas:** dados que definem a disposição dos tiles no cenário.
+- **Paletas:** dados referentes às cores utilizadas pelo NES.
 
-Novos módulos podem ser adicionados a esse diretório conforme o desenvolvimento avançar.
-
-### `cfg/`
-
-Contém a configuração de memória utilizada pelo linker.
-
-- `nes.cfg`: define as regiões de memória e os segmentos utilizados para gerar a ROM do NES.
-
-Sempre que a organização da ROM ou dos segmentos mudar, essa configuração poderá precisar de ajustes.
+A organização e a inclusão desses recursos na ROM dependerão de como forem implementados no código e no processo de compilação.
 
 ### `build/`
 
-Diretório destinado aos arquivos gerados durante a compilação.
+Pasta destinada aos arquivos gerados durante a compilação.
 
-- `main.o`: arquivo objeto produzido pelo ca65.
-- `teste.nes`: ROM gerada pelo ld65, que pode ser executada no emulador.
+Entre os arquivos gerados estão:
 
-Os arquivos desse diretório não devem ser editados manualmente, pois são resultados do processo de compilação.
+- `main.o`: arquivo objeto produzido pelo assembler.
+- `teste.nes`: ROM que pode ser executada no emulador.
+
+Esses arquivos são gerados a partir do código-fonte e da configuração do projeto.
+
+### `cfg/`
+
+Contém os arquivos de configuração utilizados na compilação.
+
+#### `nes.cfg`
+
+Arquivo de configuração do linker `ld65`.
+
+Define a organização da memória e os segmentos utilizados para gerar a ROM do NES, incluindo o cabeçalho, o código e os vetores de interrupção.
+
+### `src/`
+
+Contém os arquivos-fonte Assembly do jogo.
+
+#### `main.s`
+
+Arquivo Assembly principal do projeto.
+
+Atualmente, contém a configuração inicial do sistema, a inicialização básica do NES e um laço de execução. Ele serve como ponto de partida para a implementação das funcionalidades do jogo.
+
+Conforme o projeto crescer, outros arquivos Assembly poderão ser adicionados para organizar funcionalidades específicas.
 
 ### `Makefile`
 
-Automatiza as etapas de montagem, linkedição, execução e limpeza dos arquivos gerados.
+Automatiza as etapas de compilação do projeto.
 
-## 4. Compilação
+Os comandos disponíveis são:
 
-Na raiz do repositório, execute:
-
-```bash
-make
-```
-
-O Makefile realiza as seguintes etapas:
-
-1. O ca65 monta `src/main.s` e gera `build/main.o`.
-2. O ld65 utiliza `build/main.o` e `cfg/nes.cfg` para gerar `build/teste.nes`.
-
-Se os arquivos de entrada não tiverem sido modificados, o Make poderá reutilizar os resultados existentes.
-
-Ao final, a ROM estará disponível em:
-
-```text
-build/teste.nes
-```
-
-### Compilação limpa
-
-Para remover os arquivos gerados e realizar uma nova compilação:
-
-```bash
-make clean
-make
-```
-
-O comando `make clean` remove os arquivos presentes em `build/`.
-
-## 5. Executando o jogo
-
-Para compilar e executar a ROM pelo Makefile:
-
-```bash
-make run
-```
-
-Esse comando depende de o executável do Mesen estar disponível no `PATH` com o nome `mesen`.
-
-Caso o comando não seja reconhecido, abra o Mesen manualmente e carregue o arquivo:
-
-```text
-build/teste.nes
-```
-
-A ROM também pode ser aberta diretamente pelo emulador, sem utilizar o comando `make run`.
-
-## 6. Como funciona o processo de compilação?
-
-O fluxo de compilação é:
-
-```text
-src/main.s
-    |
-    v
-   ca65
-    |
-    v
-build/main.o
-    |
-    |       cfg/nes.cfg
-    |              |
-    +-------+------+
-            |
-            v
-          ld65
-            |
-            v
-    build/teste.nes
-            |
-            v
-          Mesen
-```
-
-### ca65
-
-Converte os arquivos Assembly em arquivos objeto.
-
-### ld65
-
-Combina os arquivos objeto e aplica a configuração de memória definida em `cfg/nes.cfg`, produzindo a ROM.
-
-### Mesen
-
-Executa a ROM para permitir testar e depurar o programa.
-
-## 7. Organização do código Assembly
-
-O projeto utiliza segmentos para organizar diferentes tipos de dados e código.
-
-Os segmentos atualmente utilizados em `main.s` são:
-
-| Segmento | Finalidade |
+| Comando | Função |
 |---|---|
-| `HEADER` | Cabeçalho iNES, que identifica o formato da ROM e informa características básicas da organização do cartucho. |
-| `ZEROPAGE` | Região destinada a variáveis que utilizam endereçamento de página zero. |
-| `CODE` | Código executável do programa. |
-| `VECTORS` | Vetores de reset e interrupções, localizados no final do espaço de endereçamento da CPU. |
+| `make` | Compila o projeto e gera a ROM. |
+| `make run` | Tenta executar a ROM utilizando o Mesen. |
+| `make clean` | Remove os arquivos presentes em `build/`. |
 
-Esses segmentos são associados às regiões de memória correspondentes em `cfg/nes.cfg`.
+## Como funciona a compilação
 
-Ao adicionar novos arquivos Assembly, é importante verificar se os segmentos utilizados estão definidos na configuração do linker.
+O processo de compilação está dividido em duas etapas principais.
 
-## 8. Fluxo de trabalho recomendado
+**1. Montagem do código Assembly**
+
+O `ca65` transforma o arquivo `src/main.s` em um arquivo objeto:
+
+```text
+src/main.s → build/main.o
+```
+
+**2. Geração da ROM**
+
+O `ld65` utiliza o arquivo objeto e a configuração `cfg/nes.cfg` para gerar a ROM:
+
+```text
+build/main.o + cfg/nes.cfg → build/teste.nes
+```
+
+O arquivo `teste.nes` pode então ser carregado no Mesen para testar o jogo.
+
+## Organização do código Assembly
+
+O arquivo `main.s` utiliza segmentos para separar diferentes partes do programa.
+
+| Segmento | Função |
+|---|---|
+| `HEADER` | Contém o cabeçalho iNES, que identifica o formato da ROM e informa características da configuração do jogo. |
+| `ZEROPAGE` | Reservado para variáveis que utilizam o endereçamento da página zero. |
+| `CODE` | Contém as instruções executáveis do programa. |
+| `VECTORS` | Contém os vetores utilizados pelo processador para identificar os pontos de entrada de interrupções e inicialização. |
+
+A organização dos segmentos é definida em `cfg/nes.cfg`.
+
+## Desenvolvimento
 
 Para contribuir com o projeto:
 
-1. Atualize sua cópia local do repositório.
-2. Implemente as alterações nos arquivos de código-fonte.
-3. Execute `make` para compilar.
-4. Abra a ROM no Mesen e teste as alterações.
-5. Verifique se a compilação e a execução continuam funcionando antes de enviar suas mudanças.
+1. Obtenha a versão mais recente do repositório.
+2. Faça as alterações nos arquivos correspondentes.
+3. Execute `make` para verificar se a compilação funciona.
+4. Teste a ROM no Mesen.
+5. Envie suas alterações para o repositório.
 
-Evite editar manualmente os arquivos gerados em `build/`. As alterações devem ser feitas nos arquivos-fonte e nas configurações do projeto.
+Ao adicionar novos arquivos Assembly, também será necessário atualizar o `Makefile` e, quando aplicável, a configuração do linker para incluí-los na compilação.
 
-## 9. Estado atual
+## Estado atual
 
-A estrutura básica de compilação está configurada.
+O projeto possui a estrutura inicial de compilação e geração de uma ROM para NES.
 
-O código inicial contém o cabeçalho iNES, a rotina de reset, configurações iniciais da CPU e da PPU, uma espera pelo VBlank, uma escrita inicial na PPU e um loop principal.
-
-As mecânicas do jogo e os demais recursos gráficos ainda serão desenvolvidos.
+O código atual estabelece uma base para o desenvolvimento das funcionalidades do jogo. Os recursos gráficos, os mapas e as mecânicas serão implementados progressivamente.
 
 ---
+
+Projeto acadêmico desenvolvido para a disciplina de Arquitetura e Organização de Computadores (AOC).
